@@ -9,7 +9,7 @@ const MyOptions: SelectOption<number>[] = [
   { key: "Second option", value: 2 },
   { key: "Third option", value: 3 },
   { key: "Fourthth option", value: 40 },
-  { key: "Tenth option", value: 10 },
+  { key: "Eyjakvalajookul volcano of epic proportions", value: 10 },
 ]
 
 
@@ -57,15 +57,18 @@ export default function SelectPage() {
 export function Select<VALUE_TYPE, OBJECT_TYPE extends SelectOption<VALUE_TYPE>>(props: SelectProps<VALUE_TYPE, OBJECT_TYPE>) {
 
   const Label = useCallback(() => {
-    if (!props.selected || (props.multiple && !props.selected?.length)) {
-      return <label>Select a value from list</label>
-    }
-    // is multiple value
-    if (props.multiple) {
-      return <label>{props.selected.map(s => s.key).join(", ")}</label>
+    let text = "Select a value from list"
+    let isPlaceholderUsed = true
+
+    if (props.multiple && props.selected.length > 0) {
+      text = props.selected.map(s => s.key).join(", ")
+      isPlaceholderUsed = false
+    } else if (props.selected && !props.multiple) {
+      text = props.selected.key
+      isPlaceholderUsed = false
     }
 
-    return <label>{props.selected.key}</label>
+    return <label className={clsx("truncate", isPlaceholderUsed && ["text-gray-500"])}>{text}</label>
 
   }, [props.selected])
 
@@ -73,7 +76,6 @@ export function Select<VALUE_TYPE, OBJECT_TYPE extends SelectOption<VALUE_TYPE>>
     if (props.multiple) {
       return props.selected.find(o => o.key === option.key) !== undefined
     }
-
     return props.selected?.key === option.key
   }
 
@@ -84,7 +86,7 @@ export function Select<VALUE_TYPE, OBJECT_TYPE extends SelectOption<VALUE_TYPE>>
         <Listbox.Button className={"border px-4 py-2 w-full"}>
           <div className={"flex gap-4 justify-between"}>
             <Label />
-            <ChevronDownIcon className={"text-gray-400 h-6 w-6"} />
+            <ChevronDownIcon className={"text-gray-400 h-6 w-6 shrink-0"} />
           </div>
 
         </Listbox.Button>
