@@ -1,10 +1,10 @@
-import { useCallback, useRef, useState } from "react"
-import { Listbox } from "@headlessui/react"
-import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/solid"
-import clsx from "clsx"
+import { useRef, useState } from "react"
+import Select from "components/select/Select"
+import { Option } from "components/select/types"
+import SelectWithLabel from "components/select/SelectWithLabel"
 
 
-const MyOptions: SelectOption<number>[] = [
+const MyOptions: Option<number>[] = [
   { key: "First option", value: 1 },
   { key: "Second option", value: 2 },
   { key: "Third option", value: 3 },
@@ -13,24 +13,10 @@ const MyOptions: SelectOption<number>[] = [
 ]
 
 
-type SelectOption<T> = { key: string, value: T }
-
-type SelectProps<VALUE_TYPE, OBJECT_TYPE extends SelectOption<VALUE_TYPE>> = {
-  selected: OBJECT_TYPE[]
-  options: OBJECT_TYPE[]
-  onChange: (selected: OBJECT_TYPE[]) => void
-  multiple: true
-} | {
-  selected: OBJECT_TYPE | null
-  options: OBJECT_TYPE[]
-  onChange: (selected: OBJECT_TYPE | null) => void
-  multiple?: false
-}
-
 export default function SelectPage() {
-  const [selected, setSelected] = useState<SelectOption<number> | null>(null)
-  const [multipleSelected, setMultipleSelected] = useState<SelectOption<number>[]>([])
-  const options = useRef<SelectOption<number>[]>([...MyOptions])
+  const [selected, setSelected] = useState<Option<number> | null>(null)
+  const [multipleSelected, setMultipleSelected] = useState<Option<number>[]>([])
+  const options = useRef<Option<number>[]>([...MyOptions])
 
   return (
     <div className={"w-1/2 shadow p-8 mx-auto flex flex-col gap-4 bg-white h-screen"}>
@@ -42,6 +28,15 @@ export default function SelectPage() {
               selected={multipleSelected}
               options={options.current}
               onChange={setMultipleSelected} />
+      <SelectWithLabel multiple={true}
+                       selected={multipleSelected}
+                       options={options.current}
+                       onChange={setMultipleSelected}
+                       label={"Hello kenobi"}
+                       error={undefined}
+      />
+
+      <hr />
       <pre>
         {JSON.stringify(selected, null, 2)}
       </pre>
@@ -50,78 +45,5 @@ export default function SelectPage() {
         {JSON.stringify(multipleSelected, null, 2)}
       </pre>
     </div>
-  )
-}
-
-
-export function Select<VALUE_TYPE, OBJECT_TYPE extends SelectOption<VALUE_TYPE>>(props: SelectProps<VALUE_TYPE, OBJECT_TYPE>) {
-
-  const Label = useCallback(() => {
-    let text = "Select a value from list"
-    let isPlaceholderUsed = true
-
-    if (props.multiple && props.selected.length > 0) {
-      text = props.selected.map(s => s.key).join(", ")
-      isPlaceholderUsed = false
-    } else if (props.selected && !props.multiple) {
-      text = props.selected.key
-      isPlaceholderUsed = false
-    }
-
-    return <label className={clsx("truncate", isPlaceholderUsed && ["text-gray-500"])}>{text}</label>
-
-  }, [props.selected])
-
-  function isSelected(option: SelectOption<VALUE_TYPE>) {
-    if (props.multiple) {
-      return props.selected.find(o => o.key === option.key) !== undefined
-    }
-    return props.selected?.key === option.key
-  }
-
-  return (
-    <Listbox value={props.selected} onChange={props.onChange} multiple={props.multiple}>
-      <div className={"relative"}>
-
-        <Listbox.Button className={"border px-4 py-2 w-full"}>
-          <div className={"flex gap-4 justify-between"}>
-            <Label />
-            <ChevronDownIcon className={"text-gray-400 h-6 w-6 shrink-0"} />
-          </div>
-
-        </Listbox.Button>
-        <Listbox.Options className={clsx(
-          "max-h-[20vh] absolute z-10 mt-1 w-full",
-          "overflow-auto bg-white text-base shadow-lg rounded-lg",
-          "ring-1 ring-primary-400 ring-opacity-5 focus:outline-none",
-          "child:px-4 child:py-2",
-        )}>
-          {props.options.map((option) =>
-            <SelectOption option={option} key={option.key}
-                          isSelected={isSelected(option)} />,
-          )}
-        </Listbox.Options>
-      </div>
-    </Listbox>
-  )
-}
-
-
-function SelectOption<V>(props: { option: SelectOption<V>, isSelected: boolean }) {
-  return (
-    <Listbox.Option
-      className={({ active, selected }) =>
-        clsx(
-          "relative cursor-default select-none transition-all duration-400",
-          "flex justify-between gap-16",
-          active && ["bg-blue-100"],
-          selected && ["bg-blue-700 text-white"],
-        )
-      }
-      value={props.option}
-    >
-      <span className={"block truncate"}>{props.option.key}</span>
-      {props.isSelected && <CheckIcon className={"h-6 w-6 text-white"} />}
-    </Listbox.Option>
   )
 }
