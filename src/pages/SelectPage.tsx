@@ -4,7 +4,7 @@ import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/solid"
 import clsx from "clsx"
 
 
-const MyOptions: SelectOption[] = [
+const MyOptions: SelectOption<number>[] = [
   { key: "First option", value: 1 },
   { key: "Second option", value: 2 },
   { key: "Third option", value: 3 },
@@ -13,39 +13,36 @@ const MyOptions: SelectOption[] = [
 ]
 
 
-type SelectOption = { key: string, value: unknown }
+type SelectOption<T> = { key: string, value: T }
 
 export default function SelectPage() {
-  const [selectedIndex, setSelectedIndex] = useState<number | -1>(-1)
-  const options = useRef<SelectOption[]>(
-    Object.values(MyOptions)
-      .map(entry => {
-        return { key: entry.key, value: entry.value }
-      }),
-  )
+  const [selected, setSelected] = useState<SelectOption<number> | null>(null)
+  const options = useRef<SelectOption<number>[]>([...MyOptions])
 
   return (
     <div className={"w-1/2 shadow p-8 mx-auto flex flex-col gap-4 bg-white h-screen"}>
       <div>
         Selector
       </div>
-      <Select selected={selectedIndex} options={options.current} onChange={setSelectedIndex} />
+      <Select selected={selected} options={options.current} onChange={setSelected} />
       <pre>
-        {JSON.stringify(options.current[selectedIndex], null, 2)}
+        {JSON.stringify(selected, null, 2)}
       </pre>
     </div>
   )
 }
 
 
-export function Select(props: { selected: number, options: SelectOption[], onChange: (index: number) => void }) {
+export function Select<V, T extends SelectOption<V>>(props: { selected: T | null, options: T[], onChange: (index: T | null) => void }) {
   return (
-    <Listbox value={props.selected} onChange={(value) => props.onChange(value)}>
+    <Listbox value={props.selected} onChange={(value) => {
+      props.onChange(value)
+    }}>
       <div className={"relative"}>
 
         <Listbox.Button className={"border px-4 py-2 w-full"}>
           <div className={"flex gap-4 justify-between"}>
-            <label>{props.selected >= 0 ? props.options[props.selected].key : "Select value"}</label>
+            <label>{props.selected ? props.selected.key : "Select value"}</label>
             <ChevronDownIcon className={"text-gray-400 h-6 w-6"} />
           </div>
 
@@ -56,8 +53,8 @@ export function Select(props: { selected: number, options: SelectOption[], onCha
           "ring-1 ring-primary-400 ring-opacity-5 focus:outline-none",
           "child:px-4 child:py-2",
         )}>
-          {props.options.map((option, index) => <SelectOption index={index} option={option} key={option.key}
-                                                              isSelected={props.options[props.selected]?.key === option.key} />)}
+          {props.options.map((option) => <SelectOption option={option} key={option.key}
+                                                       isSelected={props.selected?.key === option.key} />)}
         </Listbox.Options>
       </div>
     </Listbox>
@@ -65,7 +62,7 @@ export function Select(props: { selected: number, options: SelectOption[], onCha
 }
 
 
-function SelectOption(props: { index: number, option: SelectOption, isSelected: boolean }) {
+function SelectOption<V>(props: { option: SelectOption<V>, isSelected: boolean }) {
   return (
     <Listbox.Option
       className={({ active, selected }) =>
@@ -76,7 +73,7 @@ function SelectOption(props: { index: number, option: SelectOption, isSelected: 
           selected && ["bg-blue-700 text-white"],
         )
       }
-      value={props.index}
+      value={props.option}
     >
       <span className={"block truncate"}>{props.option.key}</span>
       {props.isSelected && <CheckIcon className={"h-6 w-6 text-white"} />}
