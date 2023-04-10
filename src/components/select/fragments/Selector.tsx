@@ -1,10 +1,10 @@
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
 import { Listbox } from "@headlessui/react"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import clsx from "clsx"
 import { Option, SelectProps } from "components/select/types"
 
-export default function Label<VALUE_TYPE, OBJECT_TYPE extends Option<VALUE_TYPE>>(props: SelectProps<VALUE_TYPE, OBJECT_TYPE>) {
+export default function Selector<VALUE_TYPE, OBJECT_TYPE extends Option<VALUE_TYPE>>(props: SelectProps<VALUE_TYPE, OBJECT_TYPE>) {
   const Label = useCallback(() => {
     let text = "Select a value from list"
     let isPlaceholderUsed = true
@@ -21,8 +21,14 @@ export default function Label<VALUE_TYPE, OBJECT_TYPE extends Option<VALUE_TYPE>
 
   }, [props.selected])
 
+  const selectErrorClass = useMemo(() => {
+    const defaultClass = "outline-red-400 border-red-400"
+    return props.selectErrorClass || defaultClass
+  }, [props.selectErrorClass])
+
+
   return (
-    <Listbox.Button className={"border px-4 py-2 w-full"}>
+    <Listbox.Button className={clsx("border px-4 py-2 w-full", props.isError && selectErrorClass)}>
       <div className={"flex gap-4 justify-between"}>
         <Label />
         <ChevronDownIcon className={"text-gray-400 h-6 w-6 shrink-0"} />

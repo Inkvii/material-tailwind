@@ -27,7 +27,8 @@ export default function SelectPage() {
       <Select multiple={true}
               selected={multipleSelected}
               options={options.current}
-              onChange={setMultipleSelected} />
+              onChange={setMultipleSelected}
+      />
       <SelectWithLabel multiple={true}
                        selected={multipleSelected}
                        options={options.current}
