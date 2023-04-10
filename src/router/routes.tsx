@@ -1,5 +1,6 @@
 import { ReactElement } from "react"
 import HomePage from "pages/HomePage"
+import SelectPage from "pages/SelectPage"
 
 interface Route {
   path: string
@@ -8,9 +9,14 @@ interface Route {
 
 const home: Route = {
   path: "/",
-  component: <HomePage/>
+  component: <SelectPage />,
+}
+const form: Route = {
+  path: "/form",
+  component: <HomePage />,
 }
 
 export default {
-  home
+  home,
+  form,
 }
